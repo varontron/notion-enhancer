@@ -5,6 +5,8 @@
  * under the MIT license
  */
 
+@import 'https://fonts.googleapis.com/css2?family=Baumans&family=Comfortaa&family=DM+Mono&family=Gruppo&family=Nova+Mono&family=Offside&family=Press+Start+2P&family=Righteous&display=swap';
+
 :root {
   --theme_dark--main: #1e1c26;
   --theme_dark--sidebar: #24222c;
@@ -66,12 +68,4 @@
 
   --theme_dark--code_inline-text: #d9cbec;
   --theme_dark--code_inline-background: #24222c;
-}
-
-.notion-dark-theme
-  .notion-scroller.vertical.horizontal
-  .notion-table-view
-  .notion-selectable.notion-collection_view-block
-  > :first-child {
-  background: var(--theme--card) !important;
 }

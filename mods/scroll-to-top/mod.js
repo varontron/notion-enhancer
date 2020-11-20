@@ -7,7 +7,9 @@
 
 'use strict';
 
-const { createElement } = require('../../pkg/helpers.js');
+const { createElement } = require('../../pkg/helpers.js'),
+  path = require('path'),
+  fs = require('fs-extra');
 
 module.exports = {
   id: '0a958f5a-17c5-48b5-8713-16190cae1959',
@@ -49,8 +51,14 @@ module.exports = {
           const $container = document.createElement('div');
           const $help = document.querySelector('.notion-help-button');
           const $scroll = createElement(
-            '<div class="notion-scroll-button" role="button">&#129049;</div>' // 🠙;
+            '<div class="notion-scroll-button" role="button"></div>'
           );
+          
+          (async () => {
+            $scroll.innerHTML = await fs.readFile(
+              path.resolve(`${__dirname}/arrow.svg`) // 🠙;
+            )
+          })();
 
           $container.className = 'bottom-right-buttons';
           $help.after($container);
@@ -74,7 +82,7 @@ module.exports = {
           let top = store().top || 0;
 
           const observer = new MutationObserver((list, observer) => {
-            if (!queue.length) requestAnimationFrame(() => process(queue));
+            if (!queue.length) requestAnimationFrame(() => handle(queue));
             queue.push(...list);
           });
           observer.observe(document.body, {
@@ -82,7 +90,7 @@ module.exports = {
             subtree: true,
           });
 
-          function process(list) {
+          function handle(list) {
             queue = [];
             setScrollDistance();
 

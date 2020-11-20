@@ -21,7 +21,7 @@
   --cola-pink: #d86f71;
   --cola-red: #a33232;
 
-  /* Main */
+  /* main */
   --theme_dark--main: var(--cola-main);
   --theme_dark--sidebar: var(--cola-sec);
   --theme_dark--overlay: rgba(29, 9, 25, 0.5);
@@ -31,11 +31,11 @@
   --theme_dark--box-shadow_strong: rgba(20, 0, 16, 0.1) 0px 0px 0px 1px,
     rgba(20, 0, 16, 0.2) 0px 3px 6px, rgba(20, 0, 16, 0.4) 0px 9px 24px;
 
-  /* Scrollbar */
+  /* scrollbar */
   --theme_dark--scrollbar: var(--cola-sec);
   --theme_dark--scrollbar_hover: var(--cola-accent);
 
-  /* Database */
+  /* database */
   --theme_dark--card: var(--cola-sec);
   --theme_dark--gallery: var(--cola-sec);
   --theme_dark--select_input: var(--cola-tet);
@@ -44,7 +44,7 @@
   --theme_dark--interactive_hover: var(--cola-tet);
   --theme_dark--button_close: var(--cola-accent);
 
-  /* Select/hover/click  */
+  /* select/hover/click  */
   --theme_dark--selected: rgba(78, 32, 69, 0.5);
   --theme_dark--primary: var(--cola-accent);
   --theme_dark--primary_hover: var(--cola-accent);
@@ -54,16 +54,16 @@
   --theme_dark--option_active-background: var(--theme_dark--primary);
   --theme_dark--option_hover-background: var(--theme_dark--primary_hover);
 
-  /* Danger */
+  /* danger */
   --theme_dark--danger_text: #eb5757;
   --theme_dark--danger_border: rgba(235, 87, 87, 0.5);
 
-  /* Default text colors */
+  /* default text colors */
   --theme_dark--text: #ffffff;
   --theme_dark--text_ui: var(--cola-info);
   --theme_dark--text_ui_info: var(--cola-info);
 
-  /* Text color options */
+  /* text color options */
   --theme_dark--text_gray: var(--cola-gray);
   --theme_dark--text_brown: var(--cola-brown);
   --theme_dark--text_orange: var(--cola-orange);
@@ -110,7 +110,7 @@
   --theme_dark--bg_pink: var(--theme_dark--select_pink);
   --theme_dark--bg_red: var(--theme_dark--select_red);
 
-  /* Callout blocks */
+  /* callout blocks */
   --theme_dark--callout-text: var(--theme_dark--line-text);
   --theme_dark--callout_gray: var(--theme_dark--line_gray);
   --theme_dark--callout_brown: var(--theme_dark--line_brown);
@@ -122,7 +122,7 @@
   --theme_dark--callout_pink: var(--theme_dark--line_pink);
   --theme_dark--callout_red: var(--theme_dark--line_red);
 
-  /* Incline/code text */
+  /* incline/code text */
   --theme_dark--code_inline-text: var(--cola-accent);
   --theme_dark--code_inline-background: var(--cola-main);
   --theme_dark--code-text: var(--theme_dark--text);
@@ -141,10 +141,4 @@
   --theme_dark--code_number: var(--theme_dark--text_purple);
   --theme_dark--code_string: var(--theme_dark--text_orange);
   --theme_dark--code_attr-value: var(--theme_dark--text_orange);
-}
-
-/* Quotations as serif */
-.notion-dark-theme .notion-quote-block {
-  font-family: Georgia, 'Times New Roman', Times, serif;
-  background-color: var(--cola-sec);
 }

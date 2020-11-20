@@ -22,14 +22,14 @@ module.exports = {
         if (document.readyState !== 'complete') return false;
         let queue = [];
         const observer = new MutationObserver((list, observer) => {
-          if (!queue.length) requestAnimationFrame(() => process(queue));
+          if (!queue.length) requestAnimationFrame(() => handle(queue));
           queue.push(...list);
         });
         observer.observe(document.body, {
           childList: true,
           subtree: true,
         });
-        function process(list) {
+        function handle(list) {
           queue = [];
           let properties = document.querySelector(
             '.notion-scroller.vertical [style*="env(safe-area-inset-left)"] > [style="width: 100%; font-size: 14px;"]'
@@ -43,16 +43,29 @@ module.exports = {
               'propertylayout-hidden'
             );
             const toggle = createElement(
-              '<button class="propertylayout-toggle" data-action="show">properties</button>'
+              '<button class="propertylayout-toggle" data-action="show">Properties</button>'
+            );
+            toggle.prepend(
+              createElement('<svg viewBox="0 0 100 100" class="triangle"><polygon points="5.9,88.2 50,11.8 94.1,88.2 "></polygon></svg>')
             );
             toggle.addEventListener('click', (event) => {
-              properties.classList.toggle('propertylayout-hidden');
-              toggle.setAttribute(
-                'data-action',
-                properties.classList.contains('propertylayout-hidden')
+              properties.style.maxHeight = properties.children[0].offsetHeight + 'px';
+              setTimeout(() => {
+                properties.classList.toggle('propertylayout-hidden');
+                toggle.setAttribute(
+                  'data-action',
+                  properties.classList.contains('propertylayout-hidden')
                   ? 'show'
                   : 'hide'
-              );
+                );
+              }, 0);
+            });
+            const propObserver = new MutationObserver(() => {
+              properties.style.maxHeight = '';
+            });
+            propObserver.observe(properties, {
+              childList: true,
+              subtree: true,
             });
             if (properties.previousElementSibling) {
               properties.previousElementSibling.append(toggle);

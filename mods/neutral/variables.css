@@ -5,6 +5,9 @@
  * under the MIT license
  */
 
+@import 'https://rsms.me/inter/inter.css';
+@import 'https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap';
+
 :root {
   /** dark **/
 
@@ -128,28 +131,4 @@
   --theme_dark--code_number: var(--theme_dark--text_purple);
   --theme_dark--code_string: var(--theme_dark--text_orange);
   --theme_dark--code_attr-value: var(--theme_dark--text_orange);
-}
-
-.notion-dark-theme [placeholder='Heading 1'],
-.notion-dark-theme [placeholder='Heading 2'],
-.notion-dark-theme [placeholder='Heading 3'] {
-  padding: 3px 1px !important;
-}
-
-/* commented out for the time being because they mess with the + :: */
-/* .notion-quote-block {
-  padding-top: 10px;
-  padding-right: 2px;
-  padding-bottom: 12px;
-  padding-left: 2px;
-}
-.notion-selectable.notion-text-block {
-  padding-top: 5px !important;
-} */
-
-/* hide sidebar "new page" button */
-.notion-dark-theme
-  .notion-sidebar
-  > [style*='flex: 0 0 auto; margin-top: auto;'] {
-  display: none !important;
 }

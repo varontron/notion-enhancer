@@ -9,6 +9,7 @@
 const url = require('url'),
   path = require('path'),
   electron = require('electron'),
+  fs = require('fs-extra'),
   {
     __notion,
     getEnhancements,
@@ -165,49 +166,6 @@ module.exports = (store, __exports) => {
             this.$dragging = null;
           }
         });
-        document.addEventListener('keyup', (event) => {
-          if (!electron.remote.getCurrentWindow().isFocused()) return;
-          // switch between tabs via key modifier
-          const select_tab_modifier = toKeyEvent(
-            store('e1692c29-475e-437b-b7ff-3eee872e1a42').select_modifier
-          );
-          let triggered = true;
-          for (let prop in select_tab_modifier)
-            if (select_tab_modifier[prop] !== event[prop]) triggered = false;
-          if (
-            triggered &&
-            [
-              '1',
-              '2',
-              '3',
-              '4',
-              '5',
-              '6',
-              '7',
-              '8',
-              '9',
-              'ArrowRight',
-              'ArrowLeft',
-            ].includes(event.key)
-          )
-            this.selectTab(event.key);
-          // create/close tab keybindings
-          const new_tab_keybinding = toKeyEvent(
-            store('e1692c29-475e-437b-b7ff-3eee872e1a42').new_tab
-          );
-          triggered = true;
-          for (let prop in new_tab_keybinding)
-            if (new_tab_keybinding[prop] !== event[prop]) triggered = false;
-          if (triggered) this.newTab();
-          const close_tab_keybinding = toKeyEvent(
-            store('e1692c29-475e-437b-b7ff-3eee872e1a42').close_tab
-          );
-          triggered = true;
-          for (let prop in close_tab_keybinding)
-            if (close_tab_keybinding[prop] !== event[prop]) triggered = false;
-          if (triggered && document.querySelector('.tab.current .close'))
-            document.querySelector('.tab.current .close').click();
-        });
         electron.ipcRenderer.on('enhancer:close-tab', (event, tab) => {
           this.closeTab(tab);
         });
@@ -249,6 +207,9 @@ module.exports = (store, __exports) => {
           } else if (dir === 'right' && webContents.canGoForward()) {
             webContents.goForward();
           }
+        });
+        electronWindow.addListener('focus', (e) => {
+          this.views.current.$el().focus();
         });
       }
 
@@ -422,10 +383,6 @@ module.exports = (store, __exports) => {
 
       communicateWithView(event) {
         switch (event.channel) {
-          case 'enhancer:set-tab-theme':
-            for (const style of event.args[0])
-              document.body.style.setProperty(style[0], style[1]);
-            break;
           case 'enhancer:set-tab-title':
             if (this.state.tabs.get(+event.target.id)) {
               this.setState({
@@ -712,6 +669,9 @@ module.exports = (store, __exports) => {
             ref: ($titlebar) => {
               this.$titlebar = $titlebar;
             },
+            onClick: (e) => {
+              this.views.current.$el().focus();
+            },
           },
           React.createElement('button', {
             id: 'open-enhancer-menu',
@@ -978,7 +938,7 @@ module.exports = (store, __exports) => {
     }
 
     window['__start'] = () => {
-      document.head.innerHTML += `<link rel="stylesheet" href="${__dirname}/css/tabs.css" />`;
+      document.body.className = 'notion-dark-theme';
       document.body.setAttribute('data-platform', process.platform);
 
       const modules = getEnhancements();
@@ -992,17 +952,25 @@ module.exports = (store, __exports) => {
         }
       }
 
-      // open menu on hotkey toggle
-      document.addEventListener('keyup', (event) => {
-        const hotkey = toKeyEvent(store().menu_toggle);
-        let triggered = true;
-        for (let prop in hotkey)
-          if (
-            hotkey[prop] !== event[prop] &&
-            !(prop === 'key' && event[prop] === 'Dead')
-          )
-            triggered = false;
-        if (triggered) electron.ipcRenderer.send('enhancer:open-menu');
+      for (let mod of modules.loaded) {
+        if (
+          mod.alwaysActive ||
+          store('mods', { [mod.id]: { enabled: false } })[mod.id].enabled
+        ) {
+          const fileExists = (file) => fs.pathExistsSync(path.resolve(file));
+          for (let sheet of ['tabs', 'variables']) {
+            if (fileExists(`${__dirname}/../${mod.dir}/${sheet}.css`)) {
+              document.head.appendChild(
+                createElement(
+                  `<link rel="stylesheet" href="enhancement://${mod.dir}/${sheet}.css">`
+                )
+              );
+            }
+          }
+        }
+      }
+      electron.ipcRenderer.on('enhancer:set-app-theme', (event, theme) => {
+        document.body.className = `notion-${theme}-theme`;
       });
 
       const parsed = url.parse(window.location.href, true),
@@ -1059,7 +1027,8 @@ module.exports = (store, __exports) => {
         }).then(() => {
           if (
             document.getElementById('notion').getAttribute('src') ===
-            'notion://www.notion.so'
+              'notion://www.notion.so' &&
+            idToNotionURL(store().default_page)
           ) {
             document
               .getElementById('notion')

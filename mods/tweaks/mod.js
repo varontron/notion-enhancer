@@ -66,6 +66,32 @@ module.exports = {
       type: 'toggle',
       value: false,
     },
+    {
+      key: 'condensed_bullets',
+      label: 'condense bullet points',
+      desc:
+        'makes bullet point blocks closer together and have tighter line spacing',
+      type: 'toggle',
+      value: false,
+    },
+    {
+      key: 'indentation_lines',
+      label: 'indentation lines for lists',
+      desc:
+        'adds vertical indentation or relationship lines to make list trees\
+        easier to follow',
+      type: 'select',
+      value: ['none', 'solid', 'dashed', 'dotted', 'soft'],
+    },
+    {
+      key: 'scroll_db_toolbars',
+      label: 'scroll database toolbars',
+      desc:
+        'allows scrolling database toolbars horizontally if\
+        part of the toolbar is hidden (hold shift while scrolling)',
+      type: 'toggle',
+      value: true,
+    },
   ],
   hacks: {
     'renderer/preload.js': (store, __exports) => {
@@ -77,6 +103,8 @@ module.exports = {
           'thicker_bold',
           'spaced_lines',
           'hide_help',
+          'condensed_bullets',
+          'scroll_db_toolbars',
         ]
           .filter((tweak) => store()[tweak])
           .map((tweak) => `[${tweak}]`)
@@ -95,6 +123,11 @@ module.exports = {
         };
         window.addEventListener('resize', addResponsiveBreakpoint);
         addResponsiveBreakpoint();
+        if (store().indentation_lines !== 'none') {
+          document.body.dataset.tweaks += `[indentation_lines_${
+            store().indentation_lines
+          }]`;
+        }
       });
     },
   },

@@ -7,7 +7,7 @@
 'use strict';
 
 const store = require('../../pkg/store.js'),
-  helpers = require('../../pkg/helpers.js'),
+  { createElement, getEnhancements } = require('../../pkg/helpers.js'),
   fs = require('fs-extra'),
   path = require('path'),
   electron = require('electron'),
@@ -17,13 +17,14 @@ window['__start'] = async () => {
   document.body.setAttribute('data-platform', process.platform);
 
   // mod loader
-  const modules = helpers.getEnhancements();
-  if (modules.loaded.length)
+  const modules = getEnhancements();
+  if (modules.loaded.length) {
     console.info(
       `<notion-enhancer> enhancements loaded: ${modules.loaded
         .map((mod) => mod.name)
         .join(', ')}.`
     );
+  }
   if (modules.invalid.length) {
     createAlert(
       'error',
@@ -43,6 +44,11 @@ window['__start'] = async () => {
       : store(args[0], { ...mod.defaults, ...args[1] });
   };
 
+  electron.ipcRenderer.send('enhancer:get-app-theme');
+  electron.ipcRenderer.on('enhancer:set-app-theme', (event, theme) => {
+    document.body.className = `notion-${theme}-theme`;
+  });
+
   const buttons = require('./buttons.js')(() => ({
     '72886371-dada-49a7-9afc-9f275ecf29d3': {
       enabled: (store('mods')['72886371-dada-49a7-9afc-9f275ecf29d3'] || {})
@@ -53,16 +59,10 @@ window['__start'] = async () => {
   }));
   document.querySelector('#titlebar').appendChild(buttons.element);
 
-  electron.ipcRenderer.send('enhancer:get-menu-theme');
-  electron.ipcRenderer.on('enhancer:set-menu-theme', (event, theme) => {
-    for (const style of theme)
-      document.body.style.setProperty(style[0], style[1]);
-  });
-
   function createAlert(type, message) {
     if (!type)
       throw Error('<notion-enhancer> @ createAlert: no alert type specified');
-    const el = helpers.createElement(`
+    const el = createElement(`
       <section class="${type}" role="alert">
         <p>${message}</p>
       </section>
@@ -85,7 +85,7 @@ window['__start'] = async () => {
 
   // update checker
   fetch(
-    `https://api.github.com/repos/dragonwocky/notion-enhancer/releases/latest`
+    `https://api.github.com/repos/notion-enhancer/notion-enhancer/releases/latest`
   )
     .then((res) => res.json())
     .then((res) => {
@@ -128,16 +128,24 @@ window['__start'] = async () => {
     )
       $popup.classList.remove('visible');
     // close window on hotkey toggle
-    const hotkey = toKeyEvent(coreStore().menu_toggle);
-    let triggered = true;
-    for (let prop in hotkey)
-      if (
-        hotkey[prop] !== event[prop] &&
-        !(prop === 'key' && event[prop] === 'Dead')
-      )
-        triggered = false;
-    if (triggered || ((event.ctrlKey || event.metaKey) && event.key === 'w'))
-      electron.remote.getCurrentWindow().close();
+    if (coreStore().menu_toggle) {
+      const hotkey = {
+        ctrlKey: false,
+        metaKey: false,
+        altKey: false,
+        shiftKey: false,
+        ...toKeyEvent(coreStore().menu_toggle),
+      };
+      let triggered = true;
+      for (let prop in hotkey)
+        if (
+          hotkey[prop] !== event[prop] &&
+          !(prop === 'key' && event[prop] === 'Dead')
+        )
+          triggered = false;
+      if (triggered || ((event.ctrlKey || event.metaKey) && event.key === 'w'))
+        electron.remote.getCurrentWindow().close();
+    }
     //  focus search
     const meta =
       !(event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey;
@@ -182,9 +190,7 @@ window['__start'] = async () => {
     .update();
   document
     .querySelector('#colorpicker')
-    .appendChild(
-      helpers.createElement('<button class="close-modal"></button>')
-    );
+    .appendChild(createElement('<button class="close-modal"></button>'));
   document.querySelectorAll('#popup .close-modal').forEach((el) =>
     el.addEventListener('click', (event) => {
       $popup.classList.remove('visible');
@@ -325,7 +331,7 @@ window['__start'] = async () => {
       throw Error('<notion-enhancer> @ createTag: no tagname specified');
     if (!onclick)
       throw Error('<notion-enhancer> @ createTag: no action specified');
-    const el = helpers.createElement(
+    const el = createElement(
       `<span class="selected" ${
         color ? `style="--tag_color: ${color}" ` : ''
       }tabindex="0">${tagname}</span>`
@@ -470,7 +476,7 @@ window['__start'] = async () => {
           </label>
         `;
     }
-    $opt = helpers.createElement(`<p class="${opt.type}">${$opt}</p>`);
+    $opt = createElement(`<p class="${opt.type}">${$opt}</p>`);
     if (opt.type === 'color') {
       $opt
         .querySelector(`#${opt.type}_${id}--${opt.key}`)
@@ -492,17 +498,10 @@ window['__start'] = async () => {
     return $opt;
   }
 
-  const $modules = document.querySelector('#modules');
+  const $modules = document.querySelector('#modules'),
+    fileExists = (file) => fs.pathExistsSync(path.resolve(file));
 
   for (let mod of modules.loaded) {
-    for (let font of mod.fonts || []) {
-      document
-        .querySelector('head')
-        .appendChild(
-          helpers.createElement(`<link rel="stylesheet" href="${font}">`)
-        );
-    }
-
     const enabled =
         mod.alwaysActive ||
         store('mods', {
@@ -516,8 +515,21 @@ window['__start'] = async () => {
               link: `https://github.com/${mod.author}`,
               avatar: `https://github.com/${mod.author}.png`,
             };
-    mod.elem = helpers.createElement(`
-    <section class="${enabled ? 'enabled' : 'disabled'}" id="${mod.id}">
+    if (enabled) {
+      for (let sheet of ['menu', 'variables']) {
+        if (fileExists(`${__dirname}/../${mod.dir}/${sheet}.css`)) {
+          document.head.appendChild(
+            createElement(
+              `<link rel="stylesheet" href="enhancement://${mod.dir}/${sheet}.css">`
+            )
+          );
+        }
+      }
+    }
+    mod.elem = createElement(`
+    <section class="${enabled ? 'enabled' : 'disabled'}${
+      mod.tags.includes('core') ? ' core' : ''
+    }" id="${mod.id}">
         <div class="meta">
         <h3 ${
           mod.alwaysActive

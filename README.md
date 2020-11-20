@@ -20,7 +20,7 @@ for support, join the [discord server](https://discord.gg/sFWPXtA).
 - [@haydn-jones](https://github.com/haydn-jones/)'s fork of the
   linux [notion-deb-builder](https://github.com/haydn-jones/notion-deb-builder).
 
-(it can also be run from the wsl to apply enhancements to the windows app.)
+linux clients must use a notion version >= 2.0.8.
 
 mobile clients are not supported and due to system limitations/restrictions cannot be.
 
@@ -28,43 +28,37 @@ a chrome extension may be coming soon for web client support.
 
 ## installation
 
-> coming from <= v0.7.0? things are a bit different - have a read of [the update guide](UPDATING.md)
-> before following these instructions.
+> **if you are updating from v0.7.0 or earlier,** things have changed, more information is available
+> in this [update guide](UPDATING.md). please read that before following these instructions.
 
-during installation/removal, make sure no notion processes are running! (check your task manager.)
-
-**win10**
-
-[install node.js](https://nodejs.org/en/download/) (_a computer restart may be required here_),
-then execute `npm i -g notion-enhancer` in the command prompt.
-
-**macOS**
-
-[install node.js](https://nodejs.org/en/download/) (_a computer restart may be required here_),
-then execute the following lines in the terminal. 
-Omit the first line if using [Node Version Manager](https://github.com/nvm-sh/nvm), as the `node_modules` directory will be located elsewhere and will likely already be owner-writable.
-
-```
-sudo chmod -R a+wr /usr/local/lib/node_modules
-sudo chmod -R a+wr /usr/local/bin
-sudo chmod -R a+wr /Applications/Notion.app/Contents/Resources
-npm i -g notion-enhancer
-```
-
-**debian/ubuntu, chromeOS, WSL (to modify the win10 app)**
-
-execute the following lines in the terminal:
-
-```
-bash curl -sL https://deb.nodesource.com setup_current.x | sudo -E bash -
-sudo apt-get install -y nodejs
-npm i -g notion-enhancer
-```
-
-**arch linux, manjaro**
-
-install the [aur package](https://aur.archlinux.org/packages/notion-enhancer)
-with your aur helper (e.g. `yay -S notion-enhancer`).
+- ensure that no notion windows/processes are running by ending all Notion processes in your task manager.
+  - `CMD + ALT + ESC` on mac and `CTRL + SHIFT + ESC` on windows/linux to open task manager.
+- [install node.js](https://nodejs.org/en/download/)
+  - you may need to restart your computer.
+  - notion-enhancer will use node.js, you do not need to interact with it aside from downloading to install notion-enhancer.
+- open your computer's terminal, **not the node.js command prompt.**
+  - **windows 10:** search in your start menu (click windows key or icon in bottom left of screen) for _'cmd'_ or _'command prompt'_.
+  - **mac:** search in spotlight (magnifying glass in top right of screen) for _'terminal'_.
+- type and enter the following line(s) based on your operating system, if there are multiple lines, make sure to enter them _one by one_ .
+  - **windows 10:**
+    ```
+    npm i -g notion-enhancer
+    ```
+  - **mac:** this may ask you to enter your password, instead of hiding your password with \*\*\* symbols, mac terminal hides it by making it invisible. simply type your password and click enter.
+    ```
+    sudo chmod -R a+wr /usr/local/lib/node_modules
+    sudo chmod -R a+wr /usr/local/bin
+    sudo chmod -R a+wr /Applications/Notion.app/Contents/Resources
+    npm i -g notion-enhancer
+    ```
+  - **debian/ubuntu, chromeOS, wsl (to modify the win10 app):**
+    ```
+    bash curl -sL https://deb.nodesource.com setup_current.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+    npm i -g notion-enhancer
+    ```
+  - **arch linux, manjaro:**
+    - install the [aur package](https://aur.archlinux.org/packages/notion-enhancer) with your aur helper (e.g. `yay -S notion-enhancer`).
 
 ### command-line interface
 
@@ -245,7 +239,7 @@ on top of other windows even if it's not focused.
 **tags:** #extension
 
 **description:** link files for small client-side tweaks. (not sure how to do something? check out the
-[tweaks](https://github.com/dragonwocky/notion-enhancer/blob/master/TWEAKS.md) collection.)
+[tweaks](https://github.com/notion-enhancer/notion-enhancer/blob/master/TWEAKS.md) collection.)
 
 **author:** [dragonwocky](https://github.com/dragonwocky/)
 
@@ -456,7 +450,7 @@ upon the original base and later moving to the javascript module system.
 
 the enhancer wouldn't be anything near to what it is now though without
 interested community members testing, coding and ideating features - some are listed as
-[contributors](https://github.com/dragonwocky/notion-enhancer/graphs/contributors) here on github,
+[contributors](https://github.com/notion-enhancer/notion-enhancer/graphs/contributors) here on github,
 but many more have been helping out on discord and in emails.
 
 individual modules have their original authors attributed.
